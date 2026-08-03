@@ -1,0 +1,54 @@
+rules:
+  - category: DESTRUCTIVE
+    severity: CRITICAL
+    pattern: "^(rm\\s+-[a-zA-Z]*\\s+/\\s*$|dd\\s+.*of=/dev/(sd|nvme|vd)[a-z]|mkfs\\..*)"
+    description: "Highly destructive operations on critical system paths or devices."
+    hard_block: true
+
+  - category: DESTRUCTIVE
+    severity: HIGH
+    pattern: "^rm\\s+-[a-zA-Z]*\\s+/(etc|var|usr|boot|bin|sbin|lib)(\\s|/|$)"
+    description: "Deleting a top-level system directory."
+    hard_block: false
+
+  - category: DESTRUCTIVE
+    severity: MEDIUM
+    pattern: "^(rm|shred)\\s+"
+    description: "Destructive file operations."
+    hard_block: false
+
+  - category: PRIVILEGE_ESCALATION
+    severity: HIGH
+    pattern: "^(chmod\\s+(-R\\s+)?777|chown\\s+-R\\s+root)"
+    description: "Granting excessive permissions."
+    hard_block: false
+    
+  - category: PRIVILEGE_ESCALATION
+    severity: MEDIUM
+    pattern: "^sudo\\s+"
+    description: "Executing command as superuser."
+    hard_block: false
+
+  - category: NETWORK_EXPOSURE
+    severity: HIGH
+    pattern: "^(iptables\\s+-F|ufw\\s+disable|nc\\s+-l)"
+    description: "Disabling firewall or opening listener ports."
+    hard_block: false
+
+  - category: IRREVERSIBLE_GIT
+    severity: MEDIUM
+    pattern: "^git\\s+(push\\s+.*--force|reset\\s+--hard|clean\\s+-fdx)"
+    description: "Irreversible git operations."
+    hard_block: false
+
+  - category: REMOTE_CODE_EXEC
+    severity: HIGH
+    pattern: "(curl|wget)\\s+.*\\|\\s*(bash|sh)"
+    description: "Piping remote content directly to a shell."
+    hard_block: false
+
+  - category: SYSTEM_CRITICAL
+    severity: HIGH
+    pattern: "^(systemctl\\s+stop\\s+(networking|ssh|docker|sshd)|kill\\s+-9\\s+1\\b)"
+    description: "Stopping critical system services or killing init."
+    hard_block: false

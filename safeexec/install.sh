@@ -46,9 +46,9 @@ if [ -f ".env" ] && grep -q "GROQ_API_KEY=" ".env" && ! grep -q "GROQ_API_KEY=$"
     KEY_STATUS="Configured"
 else
     echo ""
-    echo "SafeExec needs a free Groq API key for its AI features."
-    echo "Get one here: https://console.groq.com/keys"
-    read -s -p "Paste it below (or press Enter to skip and use mock data): " api_key
+    echo "SafeExec requires a Groq API key for its AI features."
+    echo "If you don't have one, press Enter to skip (SafeExec will use a local mock engine)."
+    read -s -p "Enter your Groq API key (get one free at console.groq.com): " api_key
     echo
     if [ -n "$api_key" ]; then
         echo "GROQ_API_KEY=$api_key" > .env

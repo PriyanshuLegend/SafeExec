@@ -2,7 +2,14 @@ import os
 import json
 import logging
 from typing import Dict, Any
+from dotenv import load_dotenv
 
+# Try to load .env from the safeexec dir first, then parent dir
+base_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.exists(os.path.join(base_dir, '.env')):
+    load_dotenv(os.path.join(base_dir, '.env'))
+else:
+    load_dotenv(os.path.join(os.path.dirname(base_dir), '.env'))
 try:
     import openai
 except ImportError:
@@ -56,8 +63,10 @@ Context:
 - Recent History: {context.get('recent_history', [])}
 """
 
+        import time
         for attempt in range(retries + 1):
             try:
+                t0 = time.time()
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
@@ -66,10 +75,22 @@ Context:
                     ],
                     response_format={"type": "json_object"}
                 )
+                t1 = time.time()
+                if os.environ.get("SAFEEXEC_DEBUG") == "1":
+                    print(f"[TIMING] LLM API Call (Attempt {attempt + 1}): {(t1 - t0) * 1000:.2f} ms")
                 
+                t2 = time.time()
                 content = response.choices[0].message.content
                 # Verify JSON parsing
                 parsed = json.loads(content)
+                t3 = time.time()
+                
+                if os.environ.get("SAFEEXEC_DEBUG") == "1":
+                    print(f"[TIMING] JSON parsing: {(t3 - t2) * 1000:.2f} ms")
+                    if attempt > 0:
+                        print(f"[TIMING] Retry occurred: Attempt {attempt + 1} succeeded.")
+                    else:
+                        print("[TIMING] Attempt 1 succeeded (no retries needed).")
                 
                 # Basic validation
                 if "risk_level" not in parsed or "plain_english_explanation" not in parsed:

@@ -1,4 +1,5 @@
 import yaml
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -30,7 +31,10 @@ class PrefilterResult:
     rule: Optional[Rule] = None
 
 class Prefilter:
-    def __init__(self, rules_file: str = "risk_rules.yaml"):
+    def __init__(self, rules_file: str = None):
+        if rules_file is None:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            rules_file = os.path.join(script_dir, "risk_rules.yaml")
         self.rules: List[Rule] = []
         self._load_rules(rules_file)
 

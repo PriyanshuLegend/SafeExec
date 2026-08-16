@@ -1,31 +1,50 @@
-# SafeExec
+# SafeExec 🛡️
 
-SafeExec is an AI-Based System Intent Engine for Safe Linux Command Execution. It intercepts your terminal commands using a shell hook, evaluates the risk level (using a local prefilter and an LLM), and explains potential dangers before executing them.
+AI-powered safety layer for your Linux terminal — catches dangerous commands before they run, and suggests smart completions based on your project.
 
-## Architecture
+## Quick Start
 
-1. **Bash Hook (`hook.sh`)**: Uses `trap DEBUG` to intercept commands before they are run.
-2. **Local Pre-filter (`prefilter.py`)**: Uses regex rules in `risk_rules.yaml` to instantly pass safe commands or hard-block undeniably catastrophic ones.
-3. **Intent Engine (`intent_engine.py`)**: For ambiguous commands, calls the Groq or OpenAI API to analyze intent and suggest safer alternatives.
-4. **Display UI (`display.py`)**: Presents a rich terminal warning box.
-5. **SQLite Logger (`db.py`)**: Logs intercepted commands and user actions to `~/.safeexec.db` for session stats.
+1. Clone this repo:
+```bash
+   git clone <your-repo-url>
+   cd safeexec
+```
 
-## Installation
+2. Run the installer:
+```bash
+   bash install.sh
+```
 
-1. Clone or download this project.
-2. Ensure you have Python 3.11+ installed.
-3. Install dependencies:
+3. When prompted, paste your free Groq API key — get one in 30 seconds at
+   [console.groq.com/keys](https://console.groq.com/keys)
+   (Or press Enter to skip — SafeExec still works with basic pattern-matching protection, just without AI-powered explanations.)
+
+4. Open a new terminal. You're protected. Try it:
+```bash
+   safeexec status
+   rm -rf /
+```
+
+That's it — no config files to edit, no manual setup.
+
+### Developer / Manual Setup
+If you prefer not to use the automated installer, or if you run into environment issues:
+
+1. Ensure you have Python 3.10+ installed.
+2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
-4. Set up your API key (Groq recommended for speed):
+   *(If this fails, create a virtual environment first: `python3 -m venv venv && source venv/bin/activate`)*
+3. Set up your API key by copying the example environment file:
    ```bash
-   export GROQ_API_KEY="your_api_key_here"
+   cp .env.example .env
    ```
-   *(If no API key is provided, SafeExec will use a local mock engine for testing).*
-5. Source the hook in your shell (e.g., add to `~/.bashrc`):
+   Then edit `.env` and add your GROQ_API_KEY.
+4. Source the hook manually in your shell:
    ```bash
-   source /path/to/safeexec/hook.sh
+   source /path/to/safeexec/safeexec_toggle.sh
+   safeexec on
    ```
 
 ## Usage

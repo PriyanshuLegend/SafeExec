@@ -38,6 +38,4 @@ safeexec_hook() {
 # extdebug allows returning non-zero from trap DEBUG to cancel the command execution
 shopt -s extdebug
 trap safeexec_hook DEBUG
-
-# Alias for manual interaction
-alias safeexec="python '$SAFEEXEC_DIR/cli.py'"
+export SAFEEXEC_ACTIVE=1

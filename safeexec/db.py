@@ -32,20 +32,32 @@ def log_command(command: str, risk_level: str, category: str, user_decision: str
     conn.commit()
     conn.close()
 
-def get_stats(db_path: str = DB_PATH) -> dict:
+def get_stats(db_path: str = DB_PATH, for_date: str = None) -> dict:
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    cursor.execute('SELECT COUNT(*) FROM command_logs')
+    date_filter = ""
+    params = ()
+    if for_date:
+        date_filter = "WHERE date(timestamp) = ?"
+        params = (for_date,)
+    
+    cursor.execute(f'SELECT COUNT(*) FROM command_logs {date_filter}', params)
     total = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM command_logs WHERE user_decision = 'abort' OR user_decision = 'hard_block'")
+    where_blocked = "user_decision = 'abort' OR user_decision = 'hard_block'"
+    where_blocked = f"({where_blocked}) AND date(timestamp) = ?" if for_date else where_blocked
+    cursor.execute(f"SELECT COUNT(*) FROM command_logs WHERE {where_blocked}", params)
     blocked = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM command_logs WHERE user_decision = 'edit'")
+    where_edited = "user_decision = 'edit'"
+    where_edited = f"{where_edited} AND date(timestamp) = ?" if for_date else where_edited
+    cursor.execute(f"SELECT COUNT(*) FROM command_logs WHERE {where_edited}", params)
     edited = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM command_logs WHERE user_decision = 'proceed'")
+    where_proceeded = "user_decision = 'proceed'"
+    where_proceeded = f"{where_proceeded} AND date(timestamp) = ?" if for_date else where_proceeded
+    cursor.execute(f"SELECT COUNT(*) FROM command_logs WHERE {where_proceeded}", params)
     proceeded = cursor.fetchone()[0]
     
     conn.close()
